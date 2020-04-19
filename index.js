@@ -42,8 +42,7 @@ async function handleRequest(request) {
   }
 
   const response = await new HTMLRewriter().on('*', new ElementHandler(variantIndex + 1)).transform(variantResponse)
-  response.headers.append('Set-Cookie', 'variantIndex=' + variantIndex + ';')
-  response.body
+  response.headers.append('Set-Cookie', 'variantIndex=' + variantIndex + '; path="/"')
   return response
 }
 
