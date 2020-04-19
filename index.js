@@ -11,13 +11,16 @@ async function handleRequest(request) {
   const variantAPI = 'https://cfw-takehome.developers.workers.dev/api/variants'
   var variantIndex = null
 
+  // fetch variant api response
   const urlArray = await fetch(variantAPI)
   if (!urlArray.ok) {
     throw Error('Error Fetching Variant URL\'s')
   }
   
+  // return json of response
   const apiResponse = await urlArray.json()
 
+  // checking if a valid cookie exists
   const cookie = request.headers.get('cookie')
   console.log(cookie)
 
@@ -31,16 +34,19 @@ async function handleRequest(request) {
     }
   } 
 
+  // if cookie doesnt exist, choose a random number between 0 and number of variants
   if (variantIndex == null) {
     variantIndex = Math.round(Math.random() * apiResponse.variants.length)
   }
-
+  
+  // fetch for the response of the chosen variant 
   const variantURL = apiResponse.variants[variantIndex]
   const variantResponse = await fetch(variantURL)
   if (!variantResponse.ok) {
     throw Error('Error Fetching Variant ' + variantIndex)
   }
-
+  
+  // transform the variant response using ElementHandler
   const response = await new HTMLRewriter().on('*', new ElementHandler(variantIndex + 1)).transform(variantResponse)
   response.headers.append('Set-Cookie', 'variantIndex=' + variantIndex + '; path="/"')
   return response
